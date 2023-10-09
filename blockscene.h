@@ -34,29 +34,47 @@ private slots:
     void do_timeout();
 
 private:
+    // 游戏难度相关
     int m_Type;
     int m_Width;
     int m_Height;
     int m_NumOfMines;
+
+    // 用于检查是否获胜
     int m_NumOfUnSweeped;
     int m_NumOfUnFlaggedMine;
-    bool m_LeftAndRightPressed = false;
-    bool m_LeftAndRightReleased = false;
+
+    // 记录游戏开始结束状态
     bool m_Over = false;
 
-    QTimer *m_Timer = NULL;
-    QElapsedTimer *m_ElapsedTimer = NULL;
+    // 用于记录鼠标活动
+    bool m_rPress = false;
+    BlockItem* m_lPressItem = NULL;
+    BlockItem* m_lrPressItem = NULL;
+
+    // 用于显示时间及获胜后记录分数
+    QTimer *m_Timer = NULL;     // 统计时间给时间显示视图
+    QElapsedTimer *m_ElapsedTimer = NULL;   // 统计总时间，记为分数
     int m_TimeNum;
 
+    // 格子数组
     QVector<QVector<BlockItem*>> m_BlockItems;
+
+    // 用于在失败后更新对应格子
     QList<BlockItem*> m_MineList;
     QList<BlockItem*> m_FlagList;
 
+    // 逐行遍历周围3*3格子时x、y值相对中心格子的偏移量
+    int dx[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[9] = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
 
     // QGraphicsScene interface
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+
+    // QGraphicsScene interface
 };
 
 #endif // BLOCKSCENE_H

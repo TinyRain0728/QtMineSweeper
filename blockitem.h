@@ -18,13 +18,15 @@ public:
     void setMine(bool newMine);
     bool isFlagged() const;
     void setFlagged(bool newFlagged);
+    bool isPressed() const;
+    void setPressed(bool newPressed);
     bool isStepMine() const;
     void setStepMine(bool newStepMine);
     int getNumOfMines() const;
     void setNumOfMines(int newNumOfMines);
 
     void updateItemStatus(bool isOver = false);
-    void setPixmapOpen0();
+    void pressOrReleaseItem();
 
 signals:
 
@@ -34,6 +36,7 @@ private:
     bool sweeped = false;
     bool mine = false;
     bool flagged = false;
+    bool pressed = false;
     bool stepMine = false;
     int numOfMines = 0;
 

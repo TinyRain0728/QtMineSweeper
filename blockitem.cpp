@@ -9,14 +9,6 @@ BlockItem::BlockItem(int row, int col)
     this->setPixmap(pixItem);
 }
 
-// 打开空格子
-void BlockItem::setPixmapOpen0()
-{
-    QPixmap pixItem = QPixmap(":/images/images/open0.jpg");
-    pixItem = pixItem.scaled(QSize(16, 16), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    this->setPixmap(pixItem);
-}
-
 // 根据格子属性更新显示图片
 void BlockItem::updateItemStatus(bool isOver)
 {
@@ -25,6 +17,8 @@ void BlockItem::updateItemStatus(bool isOver)
     {
         if(this->isFlagged())
             pixItem = QPixmap(":/images/images/bombFlagged.jpg");
+        else if(this->isPressed())
+            pixItem = QPixmap(":/images/images/open0.jpg");
         else
             pixItem = QPixmap(":/images/images/blank.jpg");
     }
@@ -70,6 +64,16 @@ void BlockItem::updateItemStatus(bool isOver)
     this->setPixmap(pixItem);
 }
 
+// 按下或释放格子，更新格子状态
+void BlockItem::pressOrReleaseItem()
+{
+    if(!isSweeped() && !isFlagged())
+    {
+        setPressed(!isPressed());
+        updateItemStatus();
+    }
+}
+
 int BlockItem::getRow() const
 {
     return row;
@@ -108,6 +112,16 @@ bool BlockItem::isFlagged() const
 void BlockItem::setFlagged(bool newFlagged)
 {
     flagged = newFlagged;
+}
+
+bool BlockItem::isPressed() const
+{
+    return pressed;
+}
+
+void BlockItem::setPressed(bool newPressed)
+{
+    pressed = newPressed;
 }
 
 int BlockItem::getNumOfMines() const

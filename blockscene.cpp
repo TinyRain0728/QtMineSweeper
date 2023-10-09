@@ -30,7 +30,7 @@ void BlockScene::setSize(int type, int width, int height, int numOfMines)
 // 初始化游戏区域视图
 void BlockScene::InitBlockScene()
 {
-    qDebug() << "beginInit";
+    // qDebug() << "beginInit";
     for(auto items : m_BlockItems)
     {
         for(auto item : items)
@@ -48,7 +48,7 @@ void BlockScene::InitBlockScene()
     m_Over = false;
 
     // 初始化计时器
-    qDebug() << "timeInitStart";
+    // qDebug() << "timeInitStart";
     if(m_Timer != NULL)
         m_Timer->stop();
     m_TimeNum = 0;
@@ -61,7 +61,7 @@ void BlockScene::InitBlockScene()
     emit faceSmile();
     emit flagChange(m_NumOfMines);
 
-    qDebug() << "paramInitOver";
+    // qDebug() << "paramInitOver";
 
     // 初始化格子
     for(int i = 0; i < m_Height; i++)
@@ -109,10 +109,10 @@ void BlockScene::InitBlockScene()
             m_BlockItems[i][j]->setNumOfMines(m_NumOfMines);
         }
     }
-    qDebug() << "blankInitOver";
+    // qDebug() << "blankInitOver";
 }
 
-// 获取鼠标点击格子对象
+// 获取光标处格子对象
 BlockItem *BlockScene::getCurItem(QGraphicsSceneMouseEvent *event)
 {
     int x = event->scenePos().x() / 16;
@@ -127,46 +127,44 @@ BlockItem *BlockScene::getCurItem(QGraphicsSceneMouseEvent *event)
 // 翻开格子
 void BlockScene::sweepItem(BlockItem *item, bool &isGameover)
 {
-    if(item->isFlagged() || item->isSweeped())
-        emit faceSmile();
-    else
+    if(!item->isSweeped())
     {
         item->setSweeped(true);
         m_NumOfUnSweeped--;
-        if(m_Width * m_Height == m_NumOfUnSweeped + 1)
-        {
-            m_Timer->start();
-            m_ElapsedTimer->start();
-        }
-        if(item->isMine())
-        {
-            isGameover = true;
-            item->setStepMine(true);
-        }
-        else
-        {
-            if(item->getNumOfMines() == 0)
-            {
-                int x = item->getCol();
-                int y = item->getRow();
-                int dx[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
-                int dy[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
-                for(int i = 0; i < 8; i++)
-                {
-                    int nx = x + dx[i];
-                    int ny = y + dy[i];
-                    if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)    //对周围递归
-                    {
-                        BlockItem * nItem = m_BlockItems[ny][nx];
-                        if(!nItem->isMine())
-                            sweepItem(nItem, isGameover);
-                    }
+    }
 
-                }
+    // 第一次点击，开始计时
+    if(m_Width * m_Height == m_NumOfUnSweeped + 1)
+    {
+        m_Timer->start();
+        m_ElapsedTimer->start();
+    }
+
+    // 标记在该格子触雷，标记游戏结束
+    if(item->isMine())
+    {
+        item->setStepMine(true);
+        isGameover = true;
+    }
+
+    // 该格子周围没有雷，递归翻开周围非雷非标记格子
+    else if(item->getNumOfMines() == 0)
+    {
+        int x = item->getCol();
+        int y = item->getRow();
+        for(int i = 0; i < 9; i++)
+        {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height && i != 4)
+            {
+                BlockItem * nItem = m_BlockItems[ny][nx];
+                if(!nItem->isMine() && !nItem->isFlagged() && !nItem->isSweeped())
+                    sweepItem(nItem, isGameover);
             }
-            item->updateItemStatus();
         }
     }
+    item->updateItemStatus();
 }
 
 bool BlockScene::checkWin()
@@ -177,8 +175,12 @@ bool BlockScene::checkWin()
 void BlockScene::gameover()
 {
     m_Over = true;
+
     emit faceDead();
+
     m_Timer->stop();
+
+    // 更新所有雷和错误标记的格子状态
     for(auto item : m_MineList)
         item->updateItemStatus(true);
     for(auto item : m_FlagList)
@@ -188,12 +190,17 @@ void BlockScene::gameover()
 void BlockScene::win()
 {
     m_Over = true;
+
     emit faceWin();
     emit flagChange(0);
+
     m_Timer->stop();
+
     double score = m_ElapsedTimer->elapsed() / 10 / 100.0;
     emit scoreChange(m_Type, score);
-    qDebug() << score;
+    // qDebug() << score;
+
+    // 标记剩余雷并更新格子状态
     for(auto item : m_MineList)
     {
         if(!item->isFlagged())
@@ -215,42 +222,38 @@ void BlockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     BlockItem *item = getCurItem(event);
     if(item != NULL && !m_Over)
     {
-        // 左右键同时按下动作
-        if((event->buttons() & Qt::LeftButton) && (event->buttons() & Qt::RightButton))
-        {
-            emit faceOoh();
-            m_LeftAndRightPressed = true;
-            int x = item->getCol();
-            int y = item->getRow();
-            // 逐行遍历周围3*3格子时x、y值相对中心格子的偏移量
-            int dx[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
-            int dy[9] = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
-            for(int i = 0; i < 9; i++)
-            {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-                if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)    //对周围递归
-                {
-                    BlockItem * nItem = m_BlockItems[ny][nx];
-                    if(!nItem->isSweeped() && !nItem->isFlagged())
-                        nItem->setPixmapOpen0();
-                }
-            }
-        }
-
         // 左键按下动作
-        else if(event->button() == Qt::LeftButton)
+        if(event->button() == Qt::LeftButton)
         {
             emit faceOoh();
-            if(!item->isSweeped())
-                item->setPixmapOpen0();
+
+            item->pressOrReleaseItem(); // 更新格子状态
+
+            if(m_rPress)                // 标记于该格子处左右键都按下
+            {
+                m_lrPressItem = item;
+                m_rPress = false;
+            }
+            else                        // 标记于该格子处左键按下
+                m_lPressItem = item;
         }
 
         // 右键按下动作
         else if(event->button() == Qt::RightButton)
         {
-            if(!item->isSweeped())
+            // 若左键已按下，标记于该格子处左右键都按下
+            if(m_lPressItem == item)
             {
+                m_lrPressItem = item;
+                m_lPressItem = NULL;
+            }
+            // 标记右键按下
+            else
+                m_rPress = true;
+
+            if(!item->isSweeped() && m_lrPressItem != item)
+            {
+                // 根据格子属性更新相关数据及格子状态
                 if(!item->isFlagged())
                 {
                     item->setFlagged(true);
@@ -276,8 +279,94 @@ void BlockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 item->updateItemStatus();
             }
         }
+
+        // 左右键都被按下动作
+        if(m_lrPressItem == item)
+        {
+            int x = item->getCol();
+            int y = item->getRow();
+
+            // 逐行遍历周围3*3格子时x、y值相对中心格子的偏移量
+            int dx[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
+            int dy[9] = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
+
+            // 递归更新周围格子状态
+            for(int i = 0; i < 9; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height && i != 4)
+                {
+                    BlockItem * nItem = m_BlockItems[ny][nx];
+                    nItem->pressOrReleaseItem();
+                }
+            }
+        }
     }
     QGraphicsScene::mousePressEvent(event);
+}
+
+void BlockScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    BlockItem *item = getCurItem(event);
+
+    // 左右键共同按下时鼠标移动
+    if(m_lrPressItem != NULL)
+    {
+        int x = m_lrPressItem->getCol();
+        int y = m_lrPressItem->getRow();
+
+        // 递归更新周围格子状态
+        for(int i = 0; i < 9; i++)
+        {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)
+            {
+                BlockItem * nItem = m_BlockItems[ny][nx];
+                if(nItem->isPressed())
+                    nItem->pressOrReleaseItem();
+            }
+        }
+    }
+
+    // 左键按下时鼠标移动
+    if(m_lPressItem != NULL)
+    {
+        if(m_lPressItem->isPressed())
+            m_lPressItem->pressOrReleaseItem();
+    }
+
+    // 光标未移出界则更新格子按下状态
+    if(item != NULL)
+    {
+        if(m_lPressItem)
+        {
+            item->pressOrReleaseItem();
+            m_lPressItem = item;
+        }
+        else if(m_lrPressItem)
+        {
+            int x = item->getCol();
+            int y = item->getRow();
+
+            // 递归更新周围格子状态
+            for(int i = 0; i < 9; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)
+                {
+                    BlockItem * nItem = m_BlockItems[ny][nx];
+                    nItem->pressOrReleaseItem();
+                }
+            }
+
+            m_lrPressItem = item;
+        }
+    }
+
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
 void BlockScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -285,65 +374,98 @@ void BlockScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     BlockItem *item = getCurItem(event);
     if(item != NULL && !m_Over)
     {
-        if(event->button() == Qt::LeftButton)
+        bool isGameover = false;
+
+        //左右键同时按下状态释放按键
+        if(m_lrPressItem == item)
         {
-            bool isGameover = false;
-            if(m_LeftAndRightPressed)
+            int x = item->getCol();
+            int y = item->getRow();
+
+            // 处在翻开格子上的释放
+            if(item->isSweeped())
             {
-                m_LeftAndRightPressed = false;
-                m_LeftAndRightReleased = true;
-                int x = item->getCol();
-                int y = item->getRow();
-                int dx[9] = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
-                int dy[9] = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
                 int flagNum = 0;
+
+                // 递归统计周围标记数
                 for(int i = 0; i < 9; i++)
                 {
                     int nx = x + dx[i];
                     int ny = y + dy[i];
-                    if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)    //对周围递归
+                    if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height && i != 4)
                     {
                         BlockItem * nItem = m_BlockItems[ny][nx];
-                        if(i != 4 && nItem->isFlagged())
+                        if(nItem->isFlagged())
                             flagNum++;
-                        nItem->updateItemStatus();
                     }
                 }
+
+                // 周围标记数与雷数相同，触发周围翻开检测
                 if(flagNum == item->getNumOfMines())
                 {
                     for(int i = 0; i < 9; i++)
                     {
                         int nx = x + dx[i];
                         int ny = y + dy[i];
-                        if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height && i != 4)    //对周围递归
+                        if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height && i != 4)
                         {
                             BlockItem * nItem = m_BlockItems[ny][nx];
-                            if(!nItem->isSweeped() && !nItem->isFlagged())
-                            {
-                                if(!nItem->isMine())
-                                    sweepItem(nItem, isGameover);
-                                else if(nItem->isMine())
-                                {
-                                    nItem->setStepMine(true);
-                                    isGameover = true;
-                                }
-                            }
+                            if(nItem->isPressed())
+                                sweepItem(nItem, isGameover);
                         }
                     }
                 }
             }
-            else
+
+            // 不处在翻开格子上的释放或周围翻开检测失败，直接递归释放周围按下的格子
+            for(int i = 0; i < 9; i++)
+            {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if(0 <= nx && nx < m_Width && 0 <= ny && ny < m_Height)
+                {
+                    BlockItem * nItem = m_BlockItems[ny][nx];
+                    if(nItem->isPressed())
+                        nItem->pressOrReleaseItem();
+                }
+            }
+
+            // 标记不再左右键同时按下
+            m_lrPressItem = NULL;
+        }
+
+        // 未双按时单独释放左键
+        else if(event->button() == Qt::LeftButton && m_lPressItem == item)
+        {
+            // 翻开该格子
+            if(item->isPressed())
                 sweepItem(item, isGameover);
 
-            if(checkWin())
-                win();
-            else if(isGameover)
-                gameover();
-            else
-                emit faceSmile();
+            // 标记不再按下左键
+            m_lPressItem = NULL;
         }
-        else if(event->button() == Qt::RightButton && m_LeftAndRightReleased)
-            m_LeftAndRightReleased = false;
+        else if(event->button() == Qt::RightButton)
+        {
+            // 标记不再按下右键
+            m_rPress = false;
+        }
+
+        // qDebug() << m_NumOfMines << " " << m_NumOfUnFlaggedMine << " " << m_NumOfUnSweeped;
+
+        // 判断是否获胜或失败
+        if(checkWin())
+            win();
+        else if(isGameover)
+            gameover();
+        else
+            emit faceSmile();
+    }
+    else if(item == NULL)
+    {
+        m_lPressItem = NULL;
+        m_lrPressItem = NULL;
+        m_rPress = false;
+        emit faceSmile();
     }
     QGraphicsScene::mouseReleaseEvent(event);
 }
