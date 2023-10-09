@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>147</width>
+    <height>225</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MineSweeper</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/images/images/bombRevealed.jpg</normaloff>:/images/images/bombRevealed.jpg</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGraphicsView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>121</width>
+      <height>151</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView_mines">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>39</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>39</width>
+      <height>23</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>39</width>
+      <height>23</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView_time">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>10</y>
+      <width>39</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>39</width>
+      <height>23</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>39</width>
+      <height>23</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+   </widget>
+   <widget class="QGraphicsView" name="graphicsView_face">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>10</y>
+      <width>26</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>26</width>
+      <height>26</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>26</width>
+      <height>26</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>147</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_game">
+    <property name="title">
+     <string>游戏(&amp;G)</string>
+    </property>
+    <addaction name="actRestart"/>
+    <addaction name="separator"/>
+    <addaction name="actSetBeginner"/>
+    <addaction name="actSetIntermediate"/>
+    <addaction name="actSetExpert"/>
+    <addaction name="separator"/>
+    <addaction name="actGetRecords"/>
+   </widget>
+   <addaction name="menu_game"/>
+  </widget>
+  <action name="actSetBeginner">
+   <property name="text">
+    <string>初级</string>
+   </property>
+  </action>
+  <action name="actSetIntermediate">
+   <property name="text">
+    <string>中级</string>
+   </property>
+  </action>
+  <action name="actSetExpert">
+   <property name="text">
+    <string>高级</string>
+   </property>
+  </action>
+  <action name="actRestart">
+   <property name="text">
+    <string>重玩</string>
+   </property>
+  </action>
+  <action name="actGetRecords">
+   <property name="text">
+    <string>查看记录</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/backgroundBeginner.jpg</file>
+        <file>images/blank.jpg</file>
+        <file>images/bombDeath.jpg</file>
+        <file>images/bombFlagged.jpg</file>
+        <file>images/bombRevealed.jpg</file>
+        <file>images/bombWrong.jpg</file>
+        <file>images/faceDead.jpg</file>
+        <file>images/faceOoh.jpg</file>
+        <file>images/faceSmile.jpg</file>
+        <file>images/faceWin.jpg</file>
+        <file>images/num0.jpg</file>
+        <file>images/num1.jpg</file>
+        <file>images/num2.jpg</file>
+        <file>images/num3.jpg</file>
+        <file>images/num4.jpg</file>
+        <file>images/num5.jpg</file>
+        <file>images/num6.jpg</file>
+        <file>images/num7.jpg</file>
+        <file>images/num8.jpg</file>
+        <file>images/num9.jpg</file>
+        <file>images/open0.jpg</file>
+        <file>images/open1.jpg</file>
+        <file>images/open2.jpg</file>
+        <file>images/open3.jpg</file>
+        <file>images/open4.jpg</file>
+        <file>images/open5.jpg</file>
+        <file>images/open6.jpg</file>
+        <file>images/open7.jpg</file>
+        <file>images/open8.jpg</file>
+        <file>images/tiles.jpg</file>
+        <file>images/faceSmilePressed.jpg</file>
+        <file>images/num-.jpg</file>
+        <file>images/backgroundExpert.jpg</file>
+        <file>images/backgroundIntermediate.jpg</file>
+    </qresource>
+</RCC>
